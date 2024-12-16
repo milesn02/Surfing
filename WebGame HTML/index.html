@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wordle Clone</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(120deg, #f7f8fc, #e2e6ef);
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    #grid {
+      display: grid;
+      grid-template-rows: repeat(6, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .row {
+      display: flex;
+      justify-content: center;
+    }
+    .tile {
+      width: 50px;
+      height: 50px;
+      border: 2px solid #ddd;
+      text-align: center;
+      line-height: 50px;
+      font-weight: bold;
+      font-size: 20px;
+      background-color: white;
+      border-radius: 5px;
+      margin: 2px;
+    }
+    .green {
+      background-color: #6aaa64 !important;
+      color: white;
+    }
+    .yellow {
+      background-color: #c9b458 !important;
+      color: white;
+    }
+    .gray {
+      background-color: #787c7e !important;
+      color: white;
+    }
+    input, button {
+      margin-top: 10px;
+    }
+    button {
+      width: 48%;
+      margin: 5px 1%;
+    }
+    #feedback {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container text-center">
+    <h1 class="mb-4">Wordle Clone</h1>
+    <p class="text-muted">Guess the 5-letter word! You have 6 attempts.</p>
+    <div id="grid"></div>
+    <input type="text" id="guess" maxlength="5" class="form-control" placeholder="Enter a 5-letter word">
+    <div class="d-flex justify-content-center mt-3">
+      <button class="btn btn-success" onclick="submitGuess()">Submit</button>
+      <button class="btn btn-danger" onclick="restartGame()">Restart Game</button>
+    </div>
+    <p id="feedback" class="text-warning"></p>
+  </div>
+
+  <script>
+    const words = ["APPLE", "HOUSE", "PLANT", "TRAIN", "GRAPE", "LIGHT", "CRANE", "SHORE"]; // Add more words here
+    let secretWord;
+    let attempts;
+
+    // Start the game
+    function startGame() {
+      secretWord = words[Math.floor(Math.random() * words.length)]; // Pick a random word
+      attempts = 0;
+      document.getElementById("grid").innerHTML = ""; // Clear the grid
+      document.getElementById("guess").value = ""; // Clear the input
+      document.getElementById("guess").disabled = false; // Enable input
+      document.getElementById("feedback").innerText = ""; // Clear feedback
+    }
+
+    // Submit a guess
+    function submitGuess() {
+      const guessInput = document.getElementById("guess");
+      const feedback = document.getElementById("feedback");
+      const grid = document.getElementById("grid");
+      const guess = guessInput.value.toUpperCase();
+
+      if (guess.length !== 5) {
+        feedback.innerText = "Please enter a valid 5-letter word.";
+        return;
+      }
+
+      const row = document.createElement("div");
+      row.className = "row";
+
+      let correctCount = 0;
+      for (let i = 0; i < 5; i++) {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.innerText = guess[i];
+        if (guess[i] === secretWord[i]) {
+          tile.classList.add("green");
+          correctCount++;
+        } else if (secretWord.includes(guess[i])) {
+          tile.classList.add("yellow");
+        } else {
+          tile.classList.add("gray");
+        }
+        row.appendChild(tile);
+      }
+
+      grid.appendChild(row);
+      guessInput.value = "";
+      attempts++;
+
+      if (correctCount === 5) {
+        feedback.innerText = "Congratulations! You guessed the word!";
+        feedback.classList.remove("text-warning");
+        feedback.classList.add("text-success");
+        guessInput.disabled = true;
+      } else if (attempts === 6) {
+        feedback.innerText = `Game over! The word was ${secretWord}.`;
+        feedback.classList.remove("text-warning");
+        feedback.classList.add("text-danger");
+        guessInput.disabled = true;
+      } else {
+        feedback.innerText = `Attempts left: ${6 - attempts}`;
+      }
+    }
+
+    // Restart the game
+    function restartGame() {
+      startGame(); // Restart with a new word
+    }
+
+    // Initialize the game when the page loads
+    startGame();
+
+    // Listen for the Enter key press to submit guess
+    document.getElementById("guess").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        submitGuess();
+      }
+    });
+  </script>
+</body>
+</html>
